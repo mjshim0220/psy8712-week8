@@ -1,0 +1,50 @@
+---
+title: "PSY 8712 Week 8 Project"
+author: "MJ Shim"
+output: html_document
+---
+
+## **Reproducible Image and Online Resources**
+An image of this project as of *`r Sys.Date()`* can be accessed by [clicking this link](https://mybinder.org/v2/gh/mjshim0220/psy8712-week8.git/HEAD).
+An interactive web app is available by [clicking this link instead].
+
+## **Script Settings and Resources**
+This is the section for setting the working directory, and loading required libraries. 
+```{r setup, message=FALSE, warning=FALSE}
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+library(shiny)
+library(ggplot2)
+library(readr)
+library(tidyverse)
+library(DT)
+library(weights)
+```
+
+## **Data Import and Cleaning**
+```{r import DF, message=FALSE, warning=FALSE, echo=FALSE}
+week8_tbl<-read.csv("../data/week3.csv") %>% 
+  mutate(q5=6-q5) %>% 
+  rowwise() %>% 
+  mutate(mean_q1_6=mean(q1:q6),
+         mean_q8_10=mean(q8:q10))
+```
+## **Visualization**
+The results below show data on Q1-Q6 and feature a scatter plot presenting the mean scores of Q1-Q6 and Q8-Q10. The chart also includes a regression line for analysis.
+```{r visualization, echo=FALSE, warning=FALSE, message=FALSE}
+v_df<-week8_tbl %>% 
+  select(q1:q6)
+
+datatable(v_df)
+
+week8_tbl %>% 
+  ggplot(aes(mean_q1_6,mean_q8_10))+
+  geom_point()+
+  geom_smooth(method="lm", color="purple")+
+  labs(x="Average Score of Q1-6", y="Average Score of Q8-10")
+```
+
+## **Analysis**
+Through the correlation analysis between two mean information variable, I observed a correlation of `r rd(cor(week8_tbl$mean_q1_6, week8_tbl$mean_q8_10), digits=2)`. However, this correlation coefficient is not significant. 
+```{r corrr, message=FALSE, warning=FALSE}
+cor.test(week8_tbl$mean_q1_6, week8_tbl$mean_q8_10)
+```
