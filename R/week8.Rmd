@@ -6,7 +6,7 @@ output: html_document
 
 ## **Reproducible Image and Online Resources**
 An image of this project as of *`r Sys.Date()`* can be accessed by [clicking this link](https://mybinder.org/v2/gh/mjshim0220/psy8712-week8.git/HEAD).
-An interactive web app is available by [clicking this link instead].
+An interactive web app is available by [clicking this link instead] (http://127.0.0.1:5159/).
 
 ## **Script Settings and Resources**
 This is the section for setting the working directory, and loading required libraries. 
@@ -21,12 +21,16 @@ library(weights)
 ```
 
 ## **Data Import and Cleaning**
-```{r import DF, message=FALSE, warning=FALSE, echo=FALSE}
+```{r import DF, message=FALSE, warning=FALSE}
 week8_tbl<-read.csv("../data/week3.csv") %>% 
-  mutate(q5=6-q5) %>% 
+  mutate(q5=6-q5,
+         gender=factor(gender, levels=c("M","F"), labels=c("Male", "Female")),
+         timeStart=as.POSIXct(timeStart),
+         timeEnd=as.POSIXct(timeEnd)) %>% 
   rowwise() %>% 
   mutate(mean_q1_6=mean(q1:q6),
          mean_q8_10=mean(q8:q10))
+
 ```
 ## **Visualization**
 The results below show data on Q1-Q6 and feature a scatter plot presenting the mean scores of Q1-Q6 and Q8-Q10. The chart also includes a regression line for analysis.
@@ -36,15 +40,23 @@ v_df<-week8_tbl %>%
 
 datatable(v_df)
 
-week8_tbl %>% 
+plot1<-week8_tbl %>% 
   ggplot(aes(mean_q1_6,mean_q8_10))+
   geom_point()+
   geom_smooth(method="lm", color="purple")+
-  labs(x="Average Score of Q1-6", y="Average Score of Q8-10")
+  labs(x = "Q1-Q6 Mean", y = "Q8-Q10 Mean")
+plot1
 ```
 
 ## **Analysis**
 Through the correlation analysis between two mean information variable, I observed a correlation of `r rd(cor(week8_tbl$mean_q1_6, week8_tbl$mean_q8_10), digits=2)`. However, this correlation coefficient is not significant. 
 ```{r corrr, message=FALSE, warning=FALSE}
 cor.test(week8_tbl$mean_q1_6, week8_tbl$mean_q8_10)
+```
+
+## **Data Export**
+Export a minimal/skinny version of the dataset for shiny.
+```{r export, message=F, warning=F}
+week8_tbl %>% 
+  saveRDS(file="../shiny_week8/week8_tbl.rds")
 ```
